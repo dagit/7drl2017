@@ -11,8 +11,9 @@ import Player
 import Level
 import Simulation
 
-withVty :: Config -> (Vty -> IO a) -> IO ()
-withVty cfg m = bracket (mkVty cfg) m shutdown
+withVty :: Config -> (Vty -> IO a) -> IO a
+withVty cfg = bracket (mkVty cfg)
+                      shutdown
 
 main :: IO ()
 main = withVty defaultConfig $ \vty -> do

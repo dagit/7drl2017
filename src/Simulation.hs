@@ -17,7 +17,9 @@ import           Render
 -- | This is for playing a game through to a final game state
 runSimulation :: RenderState -> GameState -> IO GameState
 runSimulation initRS initGS = do
-  ((), finalGS) <- runGame simulation initRS initGS
+  ((), finalGS) <- runGame (updateDisplay >> simulation)
+                           initRS
+                           initGS
   return $! finalGS
   where
   simulation = do
@@ -27,20 +29,13 @@ runSimulation initRS initGS = do
 
 stepGame :: Game ()
 stepGame = do
-  liftIO $ putStrLn "stepGame"
   evts <- translateVtyEvents
-  liftIO $ putStrLn $ "evts = " ++ show evts
   processEvents evts
   updateDisplay
 
 translateVtyEvents :: Game [Event]
 translateVtyEvents = do
-  liftIO $ putStrLn "translateVtyEvents"
-  liftIO $ putStrLn "before getVty"
-  vty <- getVty
-  liftIO $ putStrLn "after getVty"
-  k <- liftIO (Vty.nextEvent vty)
-  liftIO $ putStrLn "nextEvent"
+  k <- getVty >>= liftIO . Vty.nextEvent
   case k == Vty.EvKey Vty.KEsc [] of
     True -> return [Exit]
     _    -> return $
@@ -60,7 +55,6 @@ processEvent e = case e of
   TryMovePlayerBy x y -> do
     _gs <- getGS
     -- TODO: move player
-    liftIO $ putStrLn "Move Player"
     return ()
   Exit                -> exit
   Redraw              -> getVty >>= liftIO . Vty.refresh
