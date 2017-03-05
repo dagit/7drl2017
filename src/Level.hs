@@ -3,7 +3,7 @@ module Level
 ( Level(..)
 , Tile(..)
 , Interaction(..)
-, mkLevel
+, mkEmptyLevel
 , tileSymbol
 , tileInteraction
 , tileInventory
@@ -42,22 +42,41 @@ data Tile = Tile
 
 -- For now, we just create a static boring level
 -- for testing purposes
-mkLevel :: Level
-mkLevel = Level
-  { _levelTiles = array ((0,0),(10,10))
-                        [ ((x,y), passable) | x <- [0..maxX]
-                                            , y <- [0..maxY] ]
+mkEmptyLevel :: Level
+mkEmptyLevel = Level
+  { _levelTiles = array ((minX,minY),(maxX,maxY))
+                        [ ((x,y), tile (x,y)) | x <- [0..maxX]
+                                              , y <- [0..maxY] ]
   , _levelMobs  = []
   }
   where
-  maxX = 10
-  maxY = 10
-  passable = Tile
-    { _tileSymbol      = Symbol { _sChar = ' '
-                                , _sAttr = Just $ defAttr `withBackColor` green }
-    , _tileInteraction = Passable
-    , _tileInventory   = []
+  (minX,minY) = (0,0)
+  (maxX,maxY) = (10,10)
+  tile (x,y) | x == minX     ||
+               y == minY     ||
+               x == (maxX-1) ||
+               y == (maxY-1) = wallTile
+             | otherwise     = emptyTile
+
+emptyTile :: Tile
+emptyTile = Tile
+  { _tileSymbol = Symbol
+    { _sChar = '.'
+    , _sAttr = Just $ defAttr `withBackColor` black
     }
+  , _tileInteraction = Passable
+  , _tileInventory = []
+  }
+
+wallTile :: Tile
+wallTile = Tile
+  { _tileSymbol = Symbol
+    { _sChar = '#'
+    , _sAttr = Just $ defAttr `withBackColor` black
+    }
+  , _tileInteraction = Impassable
+  , _tileInventory = []
+  }
 
 L.makeLenses ''Tile
 L.makeLenses ''Level

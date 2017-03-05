@@ -16,7 +16,7 @@ import Misc
 playerSymbol :: Symbol
 playerSymbol = Symbol
   { _sChar = '@'
-  , _sAttr = Just (defAttr `withForeColor` blue `withBackColor` green)
+  , _sAttr = Just (defAttr `withForeColor` white `withBackColor` black)
   }
 
 data Player = Player

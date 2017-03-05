@@ -21,7 +21,7 @@ updateDisplay = do
     (w,h) <- (outputIface <$> getVty) >>= liftIO . displayBounds
     thePlayer <- _gsPlayer <$> getGS
     let ox = (w `div` 2) - (thePlayer ^. pCoord._1)
-        oy = (w `div` 2) - (thePlayer ^. pCoord._2)
+        oy = (h `div` 2) - (thePlayer ^. pCoord._2)
     -- translate the world images to place the player in the center of the
     -- level.
     world' <- map (translate ox oy) <$> worldImages

@@ -2,14 +2,15 @@ module Simulation
 ( runSimulation
 ) where
 
+import           Data.Array
 import           Control.Monad.State
-
 import           Control.Lens
 
 import qualified Graphics.Vty as Vty
 
 import           Game
 import           Event
+import qualified Level as L
 import           Player
 import           Render
 
@@ -55,13 +56,25 @@ processEvent e = case e of
   TryMovePlayerBy x y -> do
     gs <- getGS
     let lvl      = gs^.gsLevel
+    let ((minX,minY),(maxX,maxY)) = bounds (lvl^.L.levelTiles)
     let playerX  = gs^.gsPlayer^.pCoord^._1
     let playerY  = gs^.gsPlayer^.pCoord^._2
     let playerX' = playerX + x
     let playerY' = playerY + y
-    -- TODO: check bounds
-    putGS (gs & (gsPlayer.pCoord._1) .~ playerX'
-              & (gsPlayer.pCoord._2) .~ playerY')
+    -- This checks the level bounds so that the player can't
+    -- go out of level bounds.
+    let playerX'' = if minX <= playerX' && playerX' < maxX
+                      then playerX'
+                      else playerX
+    let playerY'' = if minY <= playerY' && playerY' < maxY
+                      then playerY'
+                      else playerY
+    -- Now check that the desired tile can be moved on
+    let t = (lvl^.L.levelTiles) ! (playerX'', playerY'')
+    case t^.L.tileInteraction of
+      L.Impassable -> return ()
+      _            -> putGS (gs & (gsPlayer.pCoord._1) .~ playerX''
+                                & (gsPlayer.pCoord._2) .~ playerY'')
     return ()
   Exit                -> exit
   Redraw              -> getVty >>= liftIO . Vty.refresh

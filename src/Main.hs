@@ -17,11 +17,12 @@ withVty cfg = bracket (mkVty cfg)
 
 main :: IO ()
 main = do
-  final <- withVty defaultConfig $ \vty -> do
-    let l  = mkLevel
+  _final <- withVty defaultConfig $ \vty -> do
+    let l  = mkEmptyLevel
     let gs = mkGameState (mkPlayer (5,5)) l
     let rs = mkRenderState vty
     runSimulation rs gs
-  print final
+  -- print final
+  putStrLn "Thanks for playing!"
 
 
