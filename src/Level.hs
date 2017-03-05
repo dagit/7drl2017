@@ -40,6 +40,9 @@ data Tile = Tile
   , _tileInventory   :: ![Item]
   } deriving (Read, Show, Eq)
 
+L.makeLenses ''Tile
+L.makeLenses ''Level
+
 -- For now, we just create a static boring level
 -- for testing purposes
 mkEmptyLevel :: (Int,Int) -> (Int, Int) -> Level
@@ -76,5 +79,3 @@ wallTile = Tile
   , _tileInventory = []
   }
 
-L.makeLenses ''Tile
-L.makeLenses ''Level

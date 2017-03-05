@@ -45,7 +45,7 @@ simulateWorld = do
   let playerTile = (lvl^.L.levelTiles) ! (gs^.gsPlayer^.pCoord)
   case playerTile^.L.tileInteraction of
     L.Exit       -> logMsg "You found the exit!"
-    L.Passable   -> return ()
+    L.Passable   -> logMsg ""
     L.Trigger () -> logMsg "Trigger activated!"
     L.Impassable -> logMsg "Impossible!"
   return ()
