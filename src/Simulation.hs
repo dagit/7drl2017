@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Simulation
 ( runSimulation
 ) where
@@ -17,11 +18,14 @@ import           Render
 -- | This is for playing a game through to a final game state
 runSimulation :: RenderState -> GameState -> IO GameState
 runSimulation initRS initGS = do
-  ((), finalGS) <- runGame (updateDisplay >> simulation)
+  ((), finalGS) <- runGame (bootstrap >> simulation)
                            initRS
                            initGS
   return $! finalGS
   where
+  bootstrap = do
+    logMsg "Move with the arrows keys. Press ESC to exit."
+    updateDisplay
   simulation = do
     stepGame
     gs <- getGS
@@ -31,7 +35,20 @@ stepGame :: Game ()
 stepGame = do
   evts <- translateVtyEvents
   processEvents evts
+  simulateWorld
   updateDisplay
+
+simulateWorld :: Game ()
+simulateWorld = do
+  gs <- getGS
+  let lvl = gs^.gsLevel
+  let playerTile = (lvl^.L.levelTiles) ! (gs^.gsPlayer^.pCoord)
+  case playerTile^.L.tileInteraction of
+    L.Exit       -> logMsg "You found the exit!"
+    L.Passable   -> return ()
+    L.Trigger () -> logMsg "Trigger activated!"
+    L.Impassable -> logMsg "Impossible!"
+  return ()
 
 translateVtyEvents :: Game [Event]
 translateVtyEvents = do
@@ -69,6 +86,8 @@ processEvent e = case e of
     let playerY'' = if minY <= playerY' && playerY' < maxY
                       then playerY'
                       else playerY
+    when (playerX == playerX'' || playerY == playerY'') $
+      logMsg "Your movement is blocked"
     -- Now check that the desired tile can be moved on
     let t = (lvl^.L.levelTiles) ! (playerX'', playerY'')
     case t^.L.tileInteraction of

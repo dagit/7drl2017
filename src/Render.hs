@@ -2,21 +2,23 @@ module Render
 ( updateDisplay
 ) where
 
-import Data.Array
+import           Data.Array
 
-import Control.Monad.State
-import Control.Lens
+import           Control.Monad.State
+import           Control.Lens
 
-import Graphics.Vty
+import           Graphics.Vty
 
-import Game
-import Player
-import Misc
-import Level as L
+import           Game
+import           Player
+import           Misc
+import           Level as L
 
 updateDisplay :: Game ()
 updateDisplay = do
-    let info = string defAttr "Move with the arrows keys. Press ESC to exit."
+    gs <- getGS
+    let msgs = reverse (take 3 (gs^.gsLog))
+    let info = vertCat (text' defAttr <$> msgs)
     -- determine offsets to place the player in the center of the level.
     (w,h) <- (outputIface <$> getVty) >>= liftIO . displayBounds
     thePlayer <- _gsPlayer <$> getGS

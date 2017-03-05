@@ -10,6 +10,7 @@ module Game
 , gsPlayer
 , gsLevel
 , gsExit
+, gsLog
 , getVty
 , getRS
 , putRS
@@ -20,7 +21,10 @@ module Game
 , mkGameState
 , runGame
 , exit
+, logMsg
 ) where
+
+import           Data.Text
 
 import           Graphics.Vty
 import           Control.Monad.State.Strict
@@ -44,6 +48,7 @@ data GameState = GameState
   { _gsPlayer :: !Player
   , _gsLevel  :: !L.Level
   , _gsExit   :: !Bool
+  , _gsLog    :: [Text]
   } deriving (Read, Show, Eq)
 
 makeLenses ''GameState
@@ -54,6 +59,7 @@ mkGameState p l = GameState
   { _gsPlayer = p
   , _gsLevel  = l
   , _gsExit   = False
+  , _gsLog    = []
   }
 
 mkRenderState :: Vty -> RenderState
@@ -85,6 +91,9 @@ modifyGS f = modify (\(rs,gs) -> (rs, f $! gs))
 
 exit :: Game ()
 exit = _2.gsExit .= True
+
+logMsg :: Text -> Game ()
+logMsg msg = modifyGS $ \gs -> gs { _gsLog = msg : _gsLog gs }
 
 -- | Note: This is lossy with respect to the rendering state.
 -- The intention is that the render state can always be reconstructed
