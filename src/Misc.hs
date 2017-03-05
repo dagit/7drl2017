@@ -1,7 +1,19 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Misc
 ( Coord
-, Symbol
+, Symbol(..)
+, sAttr
+, sChar
 ) where
 
+import Control.Lens
+
+import Graphics.Vty
+
 type Coord  = (Int, Int)
-type Symbol = Char
+data Symbol = Symbol
+  { _sAttr :: Maybe Attr
+  , _sChar :: Char
+  } deriving (Read, Show, Eq)
+
+makeLenses ''Symbol

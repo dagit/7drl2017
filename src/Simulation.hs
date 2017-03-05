@@ -13,7 +13,6 @@ import           Event
 import           Player
 import           Render
 
-
 -- | This is for playing a game through to a final game state
 runSimulation :: RenderState -> GameState -> IO GameState
 runSimulation initRS initGS = do
@@ -36,7 +35,8 @@ stepGame = do
 translateVtyEvents :: Game [Event]
 translateVtyEvents = do
   k <- getVty >>= liftIO . Vty.nextEvent
-  case k == Vty.EvKey Vty.KEsc [] of
+  case k == Vty.EvKey Vty.KEsc        [] ||
+       k == Vty.EvKey (Vty.KChar 'q') [] of
     True -> return [Exit]
     _    -> return $
       case k of
@@ -53,8 +53,15 @@ processEvents = mapM_ processEvent
 processEvent :: Event -> Game ()
 processEvent e = case e of
   TryMovePlayerBy x y -> do
-    _gs <- getGS
-    -- TODO: move player
+    gs <- getGS
+    let lvl      = gs^.gsLevel
+    let playerX  = gs^.gsPlayer^.pCoord^._1
+    let playerY  = gs^.gsPlayer^.pCoord^._2
+    let playerX' = playerX + x
+    let playerY' = playerY + y
+    -- TODO: check bounds
+    putGS (gs & (gsPlayer.pCoord._1) .~ playerX'
+              & (gsPlayer.pCoord._2) .~ playerY')
     return ()
   Exit                -> exit
   Redraw              -> getVty >>= liftIO . Vty.refresh

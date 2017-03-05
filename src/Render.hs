@@ -2,6 +2,8 @@ module Render
 ( updateDisplay
 ) where
 
+import Data.Array
+
 import Control.Monad.State
 import Control.Lens
 
@@ -9,7 +11,8 @@ import Graphics.Vty
 
 import Game
 import Player
-import Level
+import Misc
+import Level as L
 
 updateDisplay :: Game ()
 updateDisplay = do
@@ -31,12 +34,32 @@ worldImages = do
   thePlayer <- _gsPlayer <$> getGS
   let playerImage = translate (thePlayer ^. pCoord._1)
                               (thePlayer ^. pCoord._2)
-                              (char (defAttr `withForeColor` blue `withBackColor` green)
-                                    '@')
-  return [playerImage]
--- worldImages :: Game [Image]
--- worldImages = do
---     thePlayer <- gets player
---     theLevel <- gets level
---     let playerImage = translate (playerX thePlayer) (playerY thePlayer) (char pieceA '@')
---     return [playerImage, levelGeoImage theLevel]
+                              (symbolToImage playerSymbol)
+  -- Update the cached level image, or use it if it's already
+  -- defined.
+  mb_lvlImage <- _rsImage <$> getRS
+  lvlImage <- case mb_lvlImage of
+    Just lvlImage -> return lvlImage
+    Nothing       -> do
+      (rs,gs) <- get
+      let lvlImage = buildLevelImage (gs^.gsLevel)
+      putRS (rs & rsImage .~ Just lvlImage)
+      return lvlImage
+  return [playerImage, lvlImage]
+
+imageForTile :: Tile -> Image
+imageForTile t = symbolToImage (t^.tileSymbol)
+
+symbolToImage :: Symbol -> Image
+symbolToImage s = char (maybe defAttr id (s^.sAttr)) (s^.sChar)
+
+buildLevelImage :: L.Level -> Image
+buildLevelImage l =
+  let (w,h) = snd (bounds (l^.levelTiles))
+  in vertCat [ row
+             | y <- [0..h-1]
+             , let row = horizCat [ i
+                                  | x <- [0..w-1]
+                                  , let i = imageForTile ((l^.levelTiles) ! (x,y))
+                                  ]
+             ]

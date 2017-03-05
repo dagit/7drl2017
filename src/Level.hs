@@ -14,6 +14,8 @@ module Level
 import           Data.Array
 import qualified Control.Lens as L
 
+import           Graphics.Vty
+
 import           Action
 import           Item
 import           Mob
@@ -23,7 +25,7 @@ data Level = Level
   { _levelTiles :: !(Array Coord Tile)
   , _levelMobs  :: ![Mob]
   }
-  deriving (Read, Show, Eq, Ord)
+  deriving (Read, Show, Eq)
 
 data Interaction
   = Passable
@@ -36,7 +38,7 @@ data Tile = Tile
   { _tileSymbol      :: !Symbol
   , _tileInteraction :: !Interaction
   , _tileInventory   :: ![Item]
-  } deriving (Read, Show, Eq, Ord)
+  } deriving (Read, Show, Eq)
 
 -- For now, we just create a static boring level
 -- for testing purposes
@@ -51,7 +53,8 @@ mkLevel = Level
   maxX = 10
   maxY = 10
   passable = Tile
-    { _tileSymbol      = '#'
+    { _tileSymbol      = Symbol { _sChar = ' '
+                                , _sAttr = Just $ defAttr `withBackColor` green }
     , _tileInteraction = Passable
     , _tileInventory   = []
     }

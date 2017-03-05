@@ -10,6 +10,6 @@ import Misc
 data Item = Item
   { _itemSymbol      :: Symbol
   , _itemDescription :: String
-  } deriving (Read, Show, Eq, Ord)
+  } deriving (Read, Show, Eq)
 
 makeLenses ''Item

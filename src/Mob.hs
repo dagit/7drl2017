@@ -7,4 +7,4 @@ import Misc
 data Mob = Mob
   { _mobSymbol :: Symbol
   , _mobHP     :: Int
-  } deriving (Read, Show, Eq, Ord)
+  } deriving (Read, Show, Eq)

@@ -11,6 +11,9 @@ module Game
 , gsLevel
 , gsExit
 , getVty
+, getRS
+, putRS
+, modifyRS
 , getGS
 , putGS
 , modifyGS
@@ -41,7 +44,7 @@ data GameState = GameState
   { _gsPlayer :: !Player
   , _gsLevel  :: !L.Level
   , _gsExit   :: !Bool
-  } deriving (Read, Show, Eq, Ord)
+  } deriving (Read, Show, Eq)
 
 makeLenses ''GameState
 makeLenses ''RenderState
@@ -61,6 +64,15 @@ mkRenderState vty = RenderState
 
 getVty :: Game Vty
 getVty = (_rsVty . fst) <$> get
+
+getRS :: Game RenderState
+getRS = fst <$> get
+
+putRS :: RenderState -> Game ()
+putRS rs = modify (\(_,gs) -> (rs,gs))
+
+modifyRS :: (RenderState -> RenderState) -> Game ()
+modifyRS f = modify (\(rs,gs) -> (f $! rs, gs))
 
 getGS :: Game GameState
 getGS = snd <$> get
