@@ -55,11 +55,11 @@ symbolToImage s = char (maybe defAttr id (s^.sAttr)) (s^.sChar)
 
 buildLevelImage :: L.Level -> Image
 buildLevelImage l =
-  let (w,h) = snd (bounds (l^.levelTiles))
+  let ((minW,minH),(maxW,maxH)) = bounds (l^.levelTiles)
   in vertCat [ row
-             | y <- [0..h-1]
+             | y <- [minH..(maxH-1)]
              , let row = horizCat [ i
-                                  | x <- [0..w-1]
+                                  | x <- [minW..(maxW-1)]
                                   , let i = imageForTile ((l^.levelTiles) ! (x,y))
                                   ]
              ]

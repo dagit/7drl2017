@@ -42,16 +42,14 @@ data Tile = Tile
 
 -- For now, we just create a static boring level
 -- for testing purposes
-mkEmptyLevel :: Level
-mkEmptyLevel = Level
+mkEmptyLevel :: (Int,Int) -> (Int, Int) -> Level
+mkEmptyLevel (minX,minY) (maxX, maxY) = Level
   { _levelTiles = array ((minX,minY),(maxX,maxY))
-                        [ ((x,y), tile (x,y)) | x <- [0..maxX]
-                                              , y <- [0..maxY] ]
+                        [ ((x,y), tile (x,y)) | x <- [minX..maxX]
+                                              , y <- [minY..maxY] ]
   , _levelMobs  = []
   }
   where
-  (minX,minY) = (0,0)
-  (maxX,maxY) = (10,10)
   tile (x,y) | x == minX     ||
                y == minY     ||
                x == (maxX-1) ||
