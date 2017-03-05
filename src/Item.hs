@@ -1,6 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Item
 ( Item(..)
+, itemSymbol
+, itemDescription
 ) where
 
 import Control.Lens
