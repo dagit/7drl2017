@@ -37,6 +37,10 @@ stepGame = do
   processEvents evts
   simulateWorld
   updateDisplay
+  trimLog
+
+trimLog :: Game ()
+trimLog = modifyGS $ \gs -> gs & gsLog .~ take 50 (gs^.gsLog)
 
 simulateWorld :: Game ()
 simulateWorld = do

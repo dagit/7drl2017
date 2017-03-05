@@ -1,14 +1,15 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main
 ( main )
 where
 
-import Control.Exception (bracket)
+import Control.Lens
+import Control.Exception (SomeException, IOException, bracket, catch)
 
 import Graphics.Vty
 
 import Game
-import Player
-import Level
+import Saves
 import Simulation
 
 withVty :: Config -> (Vty -> IO a) -> IO a
@@ -16,13 +17,22 @@ withVty cfg = bracket (mkVty cfg)
                       shutdown
 
 main :: IO ()
-main = do
-  _final <- withVty defaultConfig $ \vty -> do
-    let l  = mkEmptyLevel (0,0) (10,10)
-    let gs = mkGameState (mkPlayer (5,5)) l
+main = gameMain `catch` (\(e::SomeException) -> print e)
+
+gameMain:: IO ()
+gameMain = do
+  withVty defaultConfig $ \vty -> do
+    mb_gs <- loadGame saveName
+             -- Maybe we should let the user know?
+             `catch` (\(_::IOException) -> return Nothing)
+    let gs = maybe mkInitGameState
+                   -- Make sure exit is not already requested, regardless
+                   -- of how the state was saved.
+                   (gsExit .~ False)
+                   mb_gs
     let rs = mkRenderState vty
-    runSimulation rs gs
-  -- print final
+    final <- runSimulation rs gs
+    saveGame saveName final
   putStrLn "Thanks for playing!"
 
 

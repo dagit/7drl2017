@@ -2,3 +2,4 @@
 .*.swo
 dist-newstyle/
 dist/
+*.sav

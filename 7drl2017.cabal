@@ -25,7 +25,9 @@ executable 7drl2017
                      , Misc
                      , Mob
                      , Player
+                     , Random
                      , Render
+                     , Saves
                      , Simulation
   -- other-extensions:    
   build-depends:       base >=4.9 && <4.10

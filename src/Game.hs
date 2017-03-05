@@ -18,6 +18,7 @@ module Game
 , getGS
 , putGS
 , modifyGS
+, mkInitGameState
 , mkGameState
 , runGame
 , exit
@@ -53,6 +54,14 @@ data GameState = GameState
 
 makeLenses ''GameState
 makeLenses ''RenderState
+
+mkInitGameState :: GameState
+mkInitGameState = GameState
+  { _gsPlayer = mkPlayer (5,5)
+  , _gsLevel  = mkEmptyLevel (0,0) (10,10)
+  , _gsExit   = False
+  , _gsLog    = []
+  }
 
 mkGameState :: Player -> L.Level -> GameState
 mkGameState p l = GameState
