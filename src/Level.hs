@@ -7,12 +7,17 @@ module Level
 , tileSymbol
 , tileInteraction
 , tileInventory
+, isExit
 , levelMobs
 , levelTiles
+, emptyTile
+, wallTile
+, upStairs
+, downStairs
 ) where
 
 import           Data.Array
-import qualified Control.Lens as L
+import           Control.Lens hiding (Level)
 
 import           Graphics.Vty
 
@@ -30,9 +35,15 @@ data Level = Level
 data Interaction
   = Passable
   | Impassable
-  | Exit
-  | Trigger !Action
+  | UpStairs
+  | DownStairs
+  | Trigger !TriggerAction
   deriving (Read, Show, Eq, Ord)
+
+isExit :: Interaction -> Bool
+isExit UpStairs   = True
+isExit DownStairs = True
+isExit _          = False
 
 data Tile = Tile
   { _tileSymbol      :: !Symbol
@@ -40,8 +51,8 @@ data Tile = Tile
   , _tileInventory   :: ![Item]
   } deriving (Read, Show, Eq)
 
-L.makeLenses ''Tile
-L.makeLenses ''Level
+makeLenses ''Tile
+makeLenses ''Level
 
 -- For now, we just create a static boring level
 -- for testing purposes
@@ -70,12 +81,13 @@ emptyTile = Tile
   }
 
 wallTile :: Tile
-wallTile = Tile
-  { _tileSymbol = Symbol
-    { _sChar = '#'
-    , _sAttr = Just $ defAttr `withBackColor` black
-    }
-  , _tileInteraction = Impassable
-  , _tileInventory = []
-  }
+wallTile = emptyTile & (tileSymbol.sChar) .~ '#'
+                     & tileInteraction    .~ Impassable
 
+upStairs :: Tile
+upStairs = emptyTile & (tileSymbol.sChar) .~ '>'
+                     & tileInteraction    .~ UpStairs
+
+downStairs :: Tile
+downStairs = emptyTile & (tileSymbol.sChar) .~ '<'
+                       & tileInteraction    .~ DownStairs

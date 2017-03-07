@@ -4,6 +4,8 @@ module Event
 
 data Event
   = TryMovePlayerBy Int Int
+  | TryUpStairs
+  | TryDownStairs
   | Exit
   | Redraw
   deriving (Read, Show, Eq, Ord)
